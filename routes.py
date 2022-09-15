@@ -1,6 +1,8 @@
 from app import app
 from flask import render_template, session, request, redirect
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import generate_password_hash
+from models import User
+from services.auth import addUser, checkIfUserExists, userLogin
 
 
 @app.route("/")
@@ -15,9 +17,10 @@ def login():
         del session['username']
     username = request.form['username']
     password = request.form['password']
-    hash_value = generate_password_hash(password)
-
-    # TODO: check username and password
+    
+    if not userLogin(username, password):        
+        return redirect("/")
+    
     session["username"] = username
     return redirect("/")
 
@@ -33,6 +36,18 @@ def register():
 @app.route("/register/me" , methods=["POST"])
 def registerMe():
     username = request.form['username']
+    if checkIfUserExists(username):
+        return redirect("/register")
+    
     password = request.form['password']
     passwordVerification = request.form['passwordVerification']
+    
+    if password != passwordVerification:
+        return redirect("/register")
+
+    hash_value = generate_password_hash(password)
+    user = User(username, hash_value)
+
+    addUser(user)
+    
     return redirect("/")
