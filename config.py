@@ -1,11 +1,11 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-uri = os.environ("DATABASE_URL") 
-if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://", 1)
 
 class Config(object):
+    uri = os.environ["DATABASE_URL"] 
+    if uri.startswith("postgres://"):
+        uri = uri.replace("postgres://", "postgresql://", 1)
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
