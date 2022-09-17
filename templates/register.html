@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekisteröidy</title>
+</head>
+<body>
+  {% if session.username %}
+  <p>Olet kirjautunut nimellä {{ session.username }}</p>
+  <a href="/logout">Kirjaudu ulos</a><a href="/">Takaisin etusivulle</a>
+  {% else %}
+  <form action="/register/me" method="POST">
+    <p>Tunnus:<br>
+    <input type="text" name="username"></p>
+    <p>Salasana:<br>
+      <input type="password" name="password">
+    </p>
+    <p>Salasana uudelleen:<br>
+    <input type="password" name="passwordVerification">
+    </p>
+    <input type="submit" value="Rekisteröidy">
+  </form>
+  {% endif %}
+</body>
+</html>
