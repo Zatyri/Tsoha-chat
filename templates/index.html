@@ -1,24 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  {% if session.username %}
-  <p>Olet kirjautunut nimellä {{ session.username }}</p>
-  <a href="/logout">Kirjaudu ulos</a>
-  {% else %}
-  <form action="/login" method="POST">
-  <p>Tunnus:<br>
-  <input type="text" name="username"></p>
-  <p>Salasana:<br>
-  <input type="password" name="password"></p>
-  <input type="submit" value="Kirjaudu">
+{% extends "base.html" %} {% block title %} Koti {% endblock %} {% block head %}
+{{ super() }} {% endblock %} 
+
+{% block content %} 
+
+{% if session.username %}
+<p>Tervetuloa {{ session.username }}!</p>
+<div class="createRoom">
+  <h2>Luo uusi huone</h2>
+  <form action="/createRoom" method="POST">
+    <input type="text" name="roomName" />
+    <input type="checkbox" name="isPrivate" value="true"/>
+    <input type="submit" value="Luo huone" />
   </form>
-  <a href="/register">Rekisteröidy</a>
-  {% endif %}
-</body>
-</html>
+</div>
+
+<div class="chat">
+  <h2>{{title}}</h2>
+  <form action="/postMessage" method="POST">  
+    <input type="text" name="messageContent" />
+    <input type="submit" value="Viestittele" />
+  </form>
+  <div class="messages">
+    {% for message in messages %}
+    <div class="message">
+      <div class="messageHeader">        
+        <h6>{{message.author}}</h6>
+      </div>
+      <div class="messageContent">{{message.content}}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<a href="/logout">Kirjaudu ulos</a>
+{% else %}
+<form action="/login" method="POST">
+  <p>
+    Tunnus:<br />
+    <input type="text" name="username" />
+  </p>
+  <p>
+    Salasana:<br />
+    <input type="password" name="password" />
+  </p>
+  <input type="submit" value="Kirjaudu" />
+</form>
+<a href="/register">Rekisteröidy</a>
+{% endif %} 
+{% endblock %}

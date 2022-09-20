@@ -25,11 +25,43 @@ def addUserToDatabase(user: User) -> bool:
   except:
     return False
 
-def getUsersPassword(username: str) -> str:
+def getUsersPasswordAndID(username: str):
   try:    
-    sql = "SELECT password FROM users WHERE users.username = (:username)"
-    result = db.session.execute(sql, {"username":username})         
-    return result.first()[0]    
+    sql = "SELECT id, password FROM users WHERE users.username = (:username)"
+    result = db.session.execute(sql, {"username":username})
+    return result.first()    
   except Exception as e: print(e)
     
-   
+def getMessagesInRoomFromDB(roomID:int):  
+  try:    
+    sql = """SELECT msg.id as messageId, r.title as roomTile, r.isPrivate, msg.content as messageContent, msg.likes, msg.postedTime, u.username as msgAuthor
+          FROM rooms as r, users as u, messages as msg 
+          JOIN messagesInRoom as msr ON msr.room = (:roomID) 
+          LEFT JOIN users ON users.id = msg.author"""
+
+    result = db.session.execute(sql, {"roomID":roomID})         
+    return result.fetchall()  
+  except Exception as e: print(e)
+
+def addMessageToDB(roomID:int, author:int, content:str, postedTime:str):
+  try:    
+    sqlAddMessage = "INSERT INTO messages (author, content, postedTime) VALUES (:author, :content, :postedTime) RETURNING id"
+    result = db.session.execute(sqlAddMessage, {"author":author, "content":content, "postedTime":postedTime})
+    messageID = result.first()[0]
+
+    sqlAddRelation = "INSERT INTO messagesInRoom (room, messageID) VALUES (:room, :messagesID)"
+    db.session.execute(sqlAddRelation, {"room":roomID, "messagesID":messageID}) 
+
+    db.session.commit() 
+
+  except Exception as e: print(e)
+
+def createRoomToDB(userID:int, isPrivate:bool, roomName:str) -> int:
+  try:    
+    sql = "INSERT INTO rooms (title, creator, isPrivate) VALUES (:title, :creator, :isPrivate) RETURNING id"
+    result = db.session.execute(sql, {"title":roomName, "creator":userID, "isPrivate":isPrivate})
+    roomID = result.first()[0]
+
+    db.session.commit() 
+    return roomID
+  except Exception as e: print(e)
