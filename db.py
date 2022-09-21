@@ -34,10 +34,10 @@ def getUsersPasswordAndID(username: str):
     
 def getMessagesInRoomFromDB(roomID:int):  
   try:    
-    sql = """SELECT msg.id as messageId, r.title as roomTile, r.isPrivate, msg.content as messageContent, msg.likes, msg.postedTime, u.username as msgAuthor
-          FROM rooms as r, users as u, messages as msg 
-          JOIN messagesInRoom as msr ON msr.room = (:roomID) 
-          LEFT JOIN users ON users.id = msg.author"""
+    sql = """SELECT DISTINCT ON (messages.id) messages.id, rooms.title, rooms.isPrivate, messages.content, messages.likes, messages.postedTime, users.username
+          FROM rooms, users, messagesinroom
+		  LEFT JOIN messages ON messages.id = messagesinroom.messageid
+		  WHERE messagesinroom.room = (:roomID)"""
 
     result = db.session.execute(sql, {"roomID":roomID})         
     return result.fetchall()  
@@ -61,7 +61,19 @@ def createRoomToDB(userID:int, isPrivate:bool, roomName:str) -> int:
     sql = "INSERT INTO rooms (title, creator, isPrivate) VALUES (:title, :creator, :isPrivate) RETURNING id"
     result = db.session.execute(sql, {"title":roomName, "creator":userID, "isPrivate":isPrivate})
     roomID = result.first()[0]
+    sqlAddUserToRoom = "INSERT INTO usersInRoom (room, userID) VALUES (:room, :userID)"
+    db.session.execute(sqlAddUserToRoom, {"room": roomID, "userID": userID})
 
     db.session.commit() 
     return roomID
+  except Exception as e: print(e)
+
+def getUsersRoomsfromDB(userID:int) -> int:
+  try:    
+    sql = """SELECT r.id as roomID, r.title as roomTitle, r.isPrivate as isPrivate, r.creator as creator 
+    FROM usersInRoom as u, rooms as r WHERE u.userID = (:userID) OR r.isPrivate = false
+    GROUP BY r.id"""
+    result = db.session.execute(sql, {"userID":userID})    
+
+    return result.fetchall()  
   except Exception as e: print(e)

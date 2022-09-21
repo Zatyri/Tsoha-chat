@@ -3,7 +3,7 @@ from flask import render_template, session, request, redirect
 from werkzeug.security import generate_password_hash
 from models import User
 from services.auth import addUser, checkIfUserExists, userLogin
-from services.messageService import addMessage, createNewRoom, getMessagesInRoom
+from services.messageService import addMessage, createNewRoom, getMessagesInRoom, getUsersRooms
 
 
 @app.route("/")
@@ -11,11 +11,19 @@ def index():
     if 'username' in session:
         id_token = session['username']
         messages = getMessagesInRoom()
+    if request.args.get('room'):
+        roomID = request.args.get('room')
+        session["activeRoom"] = roomID
     if 'activeRoom' not in session:
         session["activeRoom"] = 1
+    if 'userID' in session:
+        userID = session['userID']
 
     messages = getMessagesInRoom(session["activeRoom"])
-    return render_template("index.html", messages=messages)
+
+    rooms = getUsersRooms(userID)
+
+    return render_template("index.html", messages=messages, rooms = rooms)
 
 @app.route("/postMessage", methods=["POST"])
 def postMessage():
@@ -25,7 +33,7 @@ def postMessage():
 
     addMessage(roomID, userID, messageContent)
 
-    return redirect("/")
+    return redirect("/?room=" + roomID)
 
 @app.route('/login',methods=["POST"])
 def login():

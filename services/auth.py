@@ -7,6 +7,7 @@ def checkIfUserExists(user: str) -> bool:
   
 def addUser(user: User) -> bool:
   return addUserToDatabase(user)
+  
 
 def userLogin(username: str, password: str) -> int:
   passwordAndID = getUsersPasswordAndID(username)
