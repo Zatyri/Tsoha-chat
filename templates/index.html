@@ -21,27 +21,28 @@
     </div>
     <div class="create-room">
       <h2>Luo uusi huone</h2>
-      <form action="/createRoom" method="POST">
-        <input type="text" name="roomName" />
-        <input type="checkbox" name="isPrivate" value="true"/>
+      <form action="/createRoom" method="POST">        
+        <input type="text" name="roomName" placeholder="Huoneen nimi" />
+        <label for="isPrivate">Yksityinen:</label>
+        <input type="checkbox" label="Yksityinen" name="isPrivate" value="true"/>
         <input type="submit" value="Luo huone" />
       </form>
     </div>
   </div>
   
   <div class="chat">
-    <h2>{{title}}</h2>
+    <h2>Huone: {{title}}</h2>
     <form action="/postMessage" method="POST">  
       <input type="text" name="messageContent" />
       <input type="submit" value="Viestittele" />
     </form>
     <div class="messages">
       {% for message in messages %}
-      <div class="message">
+      <div class="message" style="border: solid black 1px; margin-top: 2px;">
         <div class="messageHeader">        
-          <h6>{{message.author}}</h6>
+          <h6>Kirjoittaja: {{message.author}}</h6>
         </div>
-        <div class="messageContent">{{message.content}}</div>
+        <div class="messageContent" style="background-color: #DEDEDE;">{{message.content}}</div>
       </div>
       {% endfor %}
     </div>    

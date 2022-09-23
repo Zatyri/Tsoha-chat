@@ -36,8 +36,8 @@ def getMessagesInRoomFromDB(roomID:int):
   try:    
     sql = """SELECT DISTINCT ON (messages.id) messages.id, rooms.title, rooms.isPrivate, messages.content, messages.likes, messages.postedTime, users.username
           FROM rooms, users, messagesinroom
-		  LEFT JOIN messages ON messages.id = messagesinroom.messageid
-		  WHERE messagesinroom.room = (:roomID)"""
+          LEFT JOIN messages ON messages.id = messagesinroom.messageid
+          WHERE messagesinroom.room = (:roomID)"""
 
     result = db.session.execute(sql, {"roomID":roomID})         
     return result.fetchall()  
@@ -77,3 +77,22 @@ def getUsersRoomsfromDB(userID:int) -> int:
 
     return result.fetchall()  
   except Exception as e: print(e)
+
+def getUserInRoom(roomID: int, userID:int):
+  try:    
+    sql = "SELECT u.userID FROM usersInRoom as u WHERE u.room = (:roomID) AND u.userID = (:userID) GROUP BY u.userID"
+
+    result = db.session.execute(sql, {"roomID": roomID, "userID":userID})    
+
+    return result.fetchall()  
+  except Exception as e: print(e)
+
+def getRoomIsPrivate(roomID: int):
+  try:    
+    sql = "SELECT u.isPrivate FROM rooms as u WHERE u.id = (:roomID)"
+
+    result = db.session.execute(sql, {"roomID": roomID})    
+
+    return result.fetchall()[0][0]
+  except Exception as e: print(e)
+    

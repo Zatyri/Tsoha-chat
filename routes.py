@@ -7,23 +7,32 @@ from services.messageService import addMessage, createNewRoom, getMessagesInRoom
 
 
 @app.route("/")
-def index():        
+def index():
+    rooms = []    
+    messages = []
+    userID = -1
     if 'username' in session:
         id_token = session['username']
         messages = getMessagesInRoom()
+
     if request.args.get('room'):
         roomID = request.args.get('room')
         session["activeRoom"] = roomID
+
     if 'activeRoom' not in session:
         session["activeRoom"] = 1
+        
     if 'userID' in session:
         userID = session['userID']
+        rooms = getUsersRooms(userID)
 
-    messages = getMessagesInRoom(session["activeRoom"])
+    messages = getMessagesInRoom(session["activeRoom"], userID)
+    title = ""
+    if len(messages) > 0:
+        print(messages[0].room)
+        title = messages[0].roomName
 
-    rooms = getUsersRooms(userID)
-
-    return render_template("index.html", messages=messages, rooms = rooms)
+    return render_template("index.html", messages=messages, rooms = rooms, title=title)
 
 @app.route("/postMessage", methods=["POST"])
 def postMessage():

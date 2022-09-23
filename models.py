@@ -13,13 +13,14 @@ class User:
     self.role = role
 
 class Message:
-  def __init__(self, id:int, author:str, room:int, content:str, likes:int, postedTime:str):
+  def __init__(self, id:int, author:str, room:int, content:str, likes:int, postedTime:str, roomName:str):
     self.id = id
     self.author = author
     self.room = room
     self.content = content
     self.likes = likes
     self.postedTime = postedTime
+    self.roomName = roomName
     
 class Room:
   def __init__(self, id:int, title:str, creator:str = "public", isPrivate:bool = False):
