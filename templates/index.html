@@ -1,24 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  {% if session.username %}
-  <p>Olet kirjautunut nimellä {{ session.username }}</p>
-  <a href="/logout">Kirjaudu ulos</a>
-  {% else %}
-  <form action="/login" method="POST">
-  <p>Tunnus:<br>
-  <input type="text" name="username"></p>
-  <p>Salasana:<br>
-  <input type="password" name="password"></p>
-  <input type="submit" value="Kirjaudu">
-  </form>
-  <a href="/register">Rekisteröidy</a>
-  {% endif %}
-</body>
-</html>
+{% extends "base.html" %} {% block title %} Koti {% endblock %} {% block head %}
+{{ super() }} {% endblock %} 
+
+{% block content %} 
+
+{% if session.username %}
+<p>Tervetuloa {{ session.username }}!</p>
+<div class="content">
+
+  <div class="rooms">
+    <div class="room-list">
+      <h2>Huoneet</h2>
+      {% for room in rooms %}
+      <div>
+        <a href="/?room={{room.id}}">{{room.title}}</a>
+        {% if room.isPrivate == True %}
+        <p>priva</p>
+        {% endif%}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="create-room">
+      <h2>Luo uusi huone</h2>
+      <form action="/createRoom" method="POST">        
+        <input type="text" name="roomName" placeholder="Huoneen nimi" />
+        <label for="isPrivate">Yksityinen:</label>
+        <input type="checkbox" label="Yksityinen" name="isPrivate" value="true"/>
+        <input type="submit" value="Luo huone" />
+      </form>
+    </div>
+  </div>
+  
+  <div class="chat">
+    <h2>Huone: {{title}}</h2>
+    <form action="/postMessage" method="POST">  
+      <input type="text" name="messageContent" />
+      <input type="submit" value="Viestittele" />
+    </form>
+    <div class="messages">
+      {% for message in messages %}
+      <div class="message" style="border: solid black 1px; margin-top: 2px;">
+        <div class="messageHeader">        
+          <h6>Kirjoittaja: {{message.author}}</h6>
+        </div>
+        <div class="messageContent" style="background-color: #DEDEDE;">{{message.content}}</div>
+      </div>
+      {% endfor %}
+    </div>    
+  </div>
+</div>
+
+<a href="/logout">Kirjaudu ulos</a>
+{% else %}
+<form action="/login" method="POST">
+  <p>
+    Tunnus:<br />
+    <input type="text" name="username" />
+  </p>
+  <p>
+    Salasana:<br />
+    <input type="password" name="password" />
+  </p>
+  <input type="submit" value="Kirjaudu" />
+</form>
+<a href="/register">Rekisteröidy</a>
+{% endif %} 
+{% endblock %}
