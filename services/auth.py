@@ -7,10 +7,12 @@ def checkIfUserExists(user: str) -> bool:
   
 def addUser(user: User) -> bool:
   return addUserToDatabase(user)
-  
+
 
 def userLogin(username: str, password: str) -> int:
   passwordAndID = getUsersPasswordAndID(username)
+  if passwordAndID == None or len(passwordAndID) == 0:
+    return -1
   if check_password_hash(passwordAndID[1], password):
     return passwordAndID[0]
   return -1

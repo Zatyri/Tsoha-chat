@@ -1,6 +1,6 @@
 from datetime import datetime
 from models import Message, Room
-from db import addMessageToDB, createRoomToDB, getMessagesInRoomFromDB, getRoomIsPrivate, getUsersRoomsfromDB, getUserInRoom
+from db import addMessageToDB, createRoomToDB, getMessagesInRoomFromDB, getRoomIsPrivate, getRoomTitleFromDB, getUsersRoomsfromDB, getUserInRoom
 
 
 def getMessagesInRoom(roomID: int=1, userID: int = None):
@@ -12,6 +12,9 @@ def getMessagesInRoom(roomID: int=1, userID: int = None):
   messagesResult = getMessagesInRoomFromDB(roomID)
   messageArray =  []
   
+  if messagesResult == None:
+    return []
+
   for msg in messagesResult:
     print(msg)
     messageArray.append(Message(msg[0], msg[6], roomID, msg[3], msg[4], msg[5], msg[1]))
@@ -45,3 +48,8 @@ def getUsersRooms(userID: int):
       Room(room[0], room[1], room[3], room[2])
     )
   return roomList
+
+def getRoomTitle(roomID: int, userID: int):
+  if checkUserAccessToRoom(roomID, userID):
+    return None
+  return getRoomTitleFromDB(roomID)
