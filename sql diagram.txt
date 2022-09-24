@@ -1,0 +1,39 @@
+Table users {
+  id integer [ pk, increment ]
+  userName varchar
+  uuid varchar
+  password varchar
+  role integer [ref: > userRoles.id]
+}
+
+Table userRoles {
+  id integer [pk, increment]
+  role varchar
+ 
+}
+
+Table rooms {
+  id integer [pk, increment]
+  creator uuid [ref: > users.uuid]
+  isPrivate bool
+  users uuid
+}
+
+Table usersInRoom {
+  room integer [pk, ref: > rooms.id]
+  user uuid [ref:> users.uuid]
+}
+
+Table messages {
+  id integer [pk, increment]
+  author uuid [ref:> users.uuid]
+  room integer [ref:> rooms.id]
+  message varchar
+  likes integer
+  postedTime timestamp
+}
+
+Table repliedMessages {
+  parentMessage integer [ref:> messages.id]
+  childMessage integer [ref:> messages.id]
+}
