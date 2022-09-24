@@ -108,4 +108,4 @@ def createRoom():
     session["activeRoom"] = roomID
 
 
-    return redirect("/?room=" + roomID)
+    return redirect("/?room=" + str(roomID))
