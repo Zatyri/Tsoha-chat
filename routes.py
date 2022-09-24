@@ -69,6 +69,8 @@ def logout():
         del session["username"]
     if 'userID' in session:
         del session['userID']
+    if 'activeRoom' in session:
+        del session["activeRoom"]
     return redirect("/")
 
 @app.route("/register")
@@ -102,6 +104,8 @@ def createRoom():
     
     roomName = request.form['roomName']
 
-    createNewRoom(userID, isPrivate, roomName)
+    roomID = createNewRoom(userID, isPrivate, roomName)
+    session["activeRoom"] = roomID
 
-    return redirect("/")
+
+    return redirect("/?room=" + roomID)
