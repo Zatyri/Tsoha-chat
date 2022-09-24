@@ -20,3 +20,6 @@ Tämä projekti on yksinkertainen chat-sovellus, jossa käyttäjät voivat kommu
 
 ## Sovelluksen toiminta tällä hetkellä
 Uusi käyttäjä voi rekisteröityä ja kirjautua sisään sekä ulos. Käyttäjä voi kirjoittaa viestejä yleisiin keskusteluhuoneisiin. Käyttäjä voi luoda yksityisiä keskusteluhuoneita, mutta vielä ei voi kutsua muita käyttäjiä huoneeseen. 
+
+## Linkki sovellukseen
+Linkki: https://tsoha-chat1.herokuapp.com/(https://tsoha-chat1.herokuapp.com/)
