@@ -69,6 +69,8 @@ def logout():
         del session["username"]
     if 'userID' in session:
         del session['userID']
+    if 'activeRoom' in session:
+        del session["activeRoom"]
     return redirect("/")
 
 @app.route("/register")
