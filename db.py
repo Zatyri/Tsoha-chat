@@ -71,8 +71,8 @@ def createRoomToDB(userID:int, isPrivate:bool, roomName:str) -> int:
 def getUsersRoomsfromDB(userID:int) -> int:
   try:    
     sql = """SELECT r.id as roomID, r.title as roomTitle, r.isPrivate as isPrivate, r.creator as creator 
-    FROM usersInRoom as u, rooms as r WHERE u.userID = (:userID) OR r.isPrivate = false
-    GROUP BY r.id"""
+            FROM rooms as r LEFT JOIN usersinroom ON usersinroom.room = r.id
+            WHERE usersinroom.userid = (:userID) OR r.isprivate = false"""
     result = db.session.execute(sql, {"userID":userID})    
 
     return result.fetchall()  
@@ -95,4 +95,13 @@ def getRoomIsPrivate(roomID: int):
 
     return result.fetchall()[0][0]
   except Exception as e: print(e)
+
+def getRoomTitleFromDB(roomID: int):
+    try:    
+      sql = "SELECT u.title FROM rooms as u WHERE u.id = (:roomID)"
+
+      result = db.session.execute(sql, {"roomID": roomID})    
+
+      return result.fetchall()[0][0]
+    except Exception as e: print(e)
     

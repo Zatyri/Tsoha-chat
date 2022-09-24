@@ -3,7 +3,7 @@ from flask import render_template, session, request, redirect
 from werkzeug.security import generate_password_hash
 from models import User
 from services.auth import addUser, checkIfUserExists, userLogin
-from services.messageService import addMessage, createNewRoom, getMessagesInRoom, getUsersRooms
+from services.messageService import addMessage, createNewRoom, getMessagesInRoom, getRoomTitle, getUsersRooms
 
 
 @app.route("/")
@@ -17,6 +17,8 @@ def index():
 
     if request.args.get('room'):
         roomID = request.args.get('room')
+        if roomID == None:
+            roomID = 1
         session["activeRoom"] = roomID
 
     if 'activeRoom' not in session:
@@ -27,10 +29,10 @@ def index():
         rooms = getUsersRooms(userID)
 
     messages = getMessagesInRoom(session["activeRoom"], userID)
-    title = ""
-    if len(messages) > 0:
-        print(messages[0].room)
-        title = messages[0].roomName
+    title = getRoomTitle(session["activeRoom"], userID)
+    if title == None:
+        title = "johon sinulla ei ole pääsyä"
+
 
     return render_template("index.html", messages=messages, rooms = rooms, title=title)
 
