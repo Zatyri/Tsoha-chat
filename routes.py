@@ -104,6 +104,8 @@ def createRoom():
     
     roomName = request.form['roomName']
 
-    createNewRoom(userID, isPrivate, roomName)
+    roomID = createNewRoom(userID, isPrivate, roomName)
+    session["activeRoom"] = roomID
 
-    return redirect("/")
+
+    return redirect("/?room=" + roomID)
