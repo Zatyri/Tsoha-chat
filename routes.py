@@ -11,18 +11,15 @@ def index():
     rooms = []    
     messages = []
     userID = -1
+    roomID = "1"
     if 'username' in session:
         id_token = session['username']
         messages = getMessagesInRoom()
 
-    if request.args.get('room'):
+    if request.args.get('room'):           
         roomID = request.args.get('room')
-        if roomID == None:
-            roomID = 1
-        session["activeRoom"] = roomID
-
-    if 'activeRoom' not in session:
-        session["activeRoom"] = 1
+    
+    session["activeRoom"] = roomID
         
     if 'userID' in session:
         userID = session['userID']
