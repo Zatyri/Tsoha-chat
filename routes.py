@@ -44,9 +44,10 @@ def index():
     
     if title == None:
         title = "johon sinulla ei ole pääsyä"
+    else:
+        userHasAccess = True
 
-
-    return render_template("index.html", messages=messages, rooms=rooms, title=title, error=error)
+    return render_template("index.html", messages=messages, rooms=rooms, title=title, isPrivate=isPrivate, nonMembers=nonMembers, members=members , userHasAccess=userHasAccess, error=error)
 
 @app.route("/postMessage", methods=["POST"])
 def postMessage():

@@ -39,7 +39,8 @@ def getMessagesInRoomFromDB(roomID:int):
           LEFT JOIN messagesinroom ON messagesinroom.messageid = messages.id
           LEFT JOIN users ON messages.author = users.id
           LEFT JOIN rooms ON rooms.id = messagesinroom.room
-          WHERE messagesinroom.room = (:roomID)"""
+          WHERE messagesinroom.room = (:roomID)
+          ORDER BY messages.postedTime"""
 
     result = db.session.execute(sql, {"roomID":roomID})         
     return result.fetchall()  

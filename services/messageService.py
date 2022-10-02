@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from models import Message, Room, SimpleUser
 from db import addMessageToDB, addUserToRoomInDB, getIsRoomInfo, getUsersInRoomFromDB,getUsersNotInRoomFromDB, createRoomToDB, getMessagesInRoomFromDB, getRoomIsPrivate, getRoomTitleFromDB, getUsersRoomsfromDB, getUserInRoom, removeUserFromRoomInDB
@@ -16,8 +16,11 @@ def getMessagesInRoom(roomID: int=1, userID: int = None):
   if messagesResult == None:
     return []
 
-  for msg in messagesResult:    
-    messageArray.append(Message(msg[0], msg[6], roomID, msg[3], msg[4], msg[5], msg[1], msg[2]))
+  for msg in messagesResult:
+    author = msg[6]    
+    if author == None:
+      author = "**Poistunut käyttäjä**"
+    messageArray.append(Message(msg[0], author, roomID, msg[3], msg[4], msg[5], msg[1], msg[2]))
   
   return list(reversed(messageArray))
 
@@ -32,7 +35,7 @@ def checkUserAccessToRoom(roomID: int, userID: int):
   return False
   
 def addMessage(roomID:int, author:int, content:str):
-  addMessageToDB(roomID, author, content, datetime.utcnow())
+  addMessageToDB(roomID, author, content, datetime.now())
 
 def createNewRoom(userID:int, isPrivate:bool, roomName:str)-> int:
   if isPrivate is None:
