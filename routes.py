@@ -14,6 +14,7 @@ def index():
     roomID = "1"
     userHasAccess = False
     error = None
+    error = None
     if 'username' in session:
         id_token = session['username']
         messages = getMessagesInRoom()
@@ -43,10 +44,9 @@ def index():
     
     if title == None:
         title = "johon sinulla ei ole pääsyä"
-    else:
-        userHasAccess = True
 
-    return render_template("index.html", messages=messages, rooms=rooms, title=title, isPrivate=isPrivate, nonMembers=nonMembers, members=members , userHasAccess=userHasAccess, error=error)
+
+    return render_template("index.html", messages=messages, rooms=rooms, title=title, error=error)
 
 @app.route("/postMessage", methods=["POST"])
 def postMessage():
@@ -159,3 +159,24 @@ def removeUser():
     removeUserFromRoom(userToRemove, roomID)
 
     return redirect("/?room=" + str(roomID))
+
+@app.route("/account")
+def account():
+    if not "userID" in session:
+        return redirect("/")
+    
+    error = None
+
+    if "error" in session:
+        error = session['error']
+        del session['error']
+
+    return render_template("account.html", error=error)
+
+@app.route("/deleteMe")
+def deleteUser():
+    if not "userID" in session:
+        return redirect("/")
+    
+
+    return redirect("/")

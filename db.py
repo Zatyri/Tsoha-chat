@@ -149,3 +149,5 @@ def removeUserFromRoomInDB(userID: int, roomID: int):
     db.session.execute(sql, {"roomID": roomID, "userID": userID})    
     db.session.commit() 
   except Exception as e: print(e)
+def deleteUserFromDB(userID: int):
+  None
