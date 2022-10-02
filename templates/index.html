@@ -1,12 +1,7 @@
 {% extends "base.html" %} {% block title %} Koti {% endblock %} {% block head %}
-{{ super() }} {% endblock %} 
-
-{% block content %} 
-
-{% if session.username %}
+{{ super() }} {% endblock %} {% block content %} {% if session.username %}
 <p>Tervetuloa {{ session.username }}!</p>
 <div class="content">
-
   <div class="rooms">
     <div class="room-list">
       <h2>Huoneet</h2>
@@ -21,31 +16,54 @@
     </div>
     <div class="create-room">
       <h2>Luo uusi huone</h2>
-      <form action="/createRoom" method="POST">        
+      <form action="/createRoom" method="POST">
         <input type="text" name="roomName" placeholder="Huoneen nimi" />
         <label for="isPrivate">Yksityinen:</label>
-        <input type="checkbox" label="Yksityinen" name="isPrivate" value="true"/>
+        <input
+          type="checkbox"
+          label="Yksityinen"
+          name="isPrivate"
+          value="true"
+        />
         <input type="submit" value="Luo huone" />
       </form>
     </div>
   </div>
-  
+
   <div class="chat">
     <h2>Huone: {{title}}</h2>
-    <form action="/postMessage" method="POST">  
+	
+    {% if isPrivate %}
+    <form action="/inviteUser" method="POST">
+
+      <label for="inviteUsers">Kutsu käyttäjiä huoneeseen</label>
+      <select name="inviteUsers">
+        
+        {% for user in users %}
+        <option value="{{user.id}}" >{{user.username}}</option>
+        {% endfor %}
+        
+      </select>
+      <input type="submit" value="Viestittele" />
+
+    </form>
+    {% endif %}
+    <form action="/postMessage" method="POST">
       <input type="text" name="messageContent" />
       <input type="submit" value="Viestittele" />
     </form>
     <div class="messages">
       {% for message in messages %}
-      <div class="message" style="border: solid black 1px; margin-top: 2px;">
-        <div class="messageHeader">        
+      <div class="message" style="border: solid black 1px; margin-top: 2px">
+        <div class="messageHeader">
           <h6>Kirjoittaja: {{message.author}}</h6>
         </div>
-        <div class="messageContent" style="background-color: #DEDEDE;">{{message.content}}</div>
+        <div class="messageContent" style="background-color: #dedede">
+          {{message.content}}
+        </div>
       </div>
       {% endfor %}
-    </div>    
+    </div>
   </div>
 </div>
 
@@ -63,5 +81,4 @@
   <input type="submit" value="Kirjaudu" />
 </form>
 <a href="/register">Rekisteröidy</a>
-{% endif %} 
-{% endblock %}
+{% endif %} {% endblock %}

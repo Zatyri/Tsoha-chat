@@ -104,4 +104,24 @@ def getRoomTitleFromDB(roomID: int):
 
       return result.fetchall()[0][0]
     except Exception as e: print(e)
+
+def getIsRoomPrivateFromDB(roomID:int):
+  try:    
+    sql = "SELECT r.isPrivate FROM rooms as r WHERE r.id = (:roomID)"
+
+    result = db.session.execute(sql, {"roomID": roomID})    
+
+    return result.fetchall()[0][0]
+  except Exception as e: print(e)
+
+def getUsersNotInRoomFromDB(roomID:int):
+  try:    
+    sql = """SELECT u.id, u.username FROM users as u
+          WHERE NOT EXISTS(SELECT * FROM usersinroom 
+          WHERE usersinroom.room = (:roomID) AND usersinroom.userID = u.id )"""
+
+    result = db.session.execute(sql, {"roomID": roomID})    
+
+    return result.fetchall()
+  except Exception as e: print(e)
     

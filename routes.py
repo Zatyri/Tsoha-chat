@@ -3,7 +3,7 @@ from flask import render_template, session, request, redirect
 from werkzeug.security import generate_password_hash
 from models import User
 from services.auth import addUser, checkIfUserExists, userLogin
-from services.messageService import addMessage, createNewRoom, getMessagesInRoom, getRoomTitle, getUsersRooms
+from services.messageService import addMessage,getUsersNotInRoom, createNewRoom, getMessagesInRoom, getRoomTitle, getUsersRooms, getIsRoomPrivate
 
 
 @app.route("/")
@@ -27,11 +27,17 @@ def index():
 
     messages = getMessagesInRoom(session["activeRoom"], userID)
     title = getRoomTitle(session["activeRoom"], userID)
+    isPrivate = getIsRoomPrivate(session["activeRoom"])
+    users = []
+    if isPrivate:
+        users = getUsersNotInRoom(session["activeRoom"])        
+        
+    
     if title == None:
         title = "johon sinulla ei ole pääsyä"
 
 
-    return render_template("index.html", messages=messages, rooms = rooms, title=title)
+    return render_template("index.html", messages=messages, rooms = rooms, title=title, isPrivate=isPrivate, users=users)
 
 @app.route("/postMessage", methods=["POST"])
 def postMessage():
