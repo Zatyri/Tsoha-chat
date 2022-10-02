@@ -54,7 +54,10 @@ def postMessage():
     userID = session['userID']
     roomID = session["activeRoom"]
 
-    addMessage(roomID, userID, messageContent)
+    if checkUserAccessToRoom(roomID, userID):
+        session['error'] = "Sinulla ei ole pääsyä huoneeseen"
+    else:
+        addMessage(roomID, userID, messageContent)
 
     return redirect("/?room=" + roomID)
 
@@ -217,4 +220,18 @@ def likeMsq():
         session['error'] = "Et voi tykätä samasta viestistä kuin kerran"
 
     return redirect("/?room=" + str(roomID))
+
+@app.route("/postReply", methods=["POST"])
+def postReply():
+    messageContent = request.form['messageContent']
+    parentMessage = int(request.form['parent'])
+    userID = session['userID']
+    roomID = session["activeRoom"]
+
+    if checkUserAccessToRoom(roomID, userID):
+        session['error'] = "Sinulla ei ole pääsyä huoneeseen"
+    else:
+        addMessage(roomID, userID, messageContent, parentMessage)    
+
+    return redirect("/?room=" + roomID)
 

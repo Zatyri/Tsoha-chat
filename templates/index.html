@@ -1,103 +1,127 @@
 {% extends "base.html" %} {% block title %} Koti {% endblock %} {% block head %}
 {{ super() }} {% endblock %} {% block content %} {% if session.username %}
-<p>Tervetuloa {{ session.username }}!</p>
-<div class="content">
-  {% if error %}
-  <div class="error">{{error}}</div>
-{% endif %} 
-  <div class="rooms">
-    <div class="room-list">
-      <h2>Huoneet</h2>
-      {% for room in rooms %}
+<div class="main">
+  <p>Tervetuloa {{ session.username }}!</p>
+  <div class="content">
+    {% if error %}
+    <div class="error">{{error}}</div>
+    {% endif %}
+    <div class="rooms">
+      <div class="room-list">
+        <h2>Huoneet</h2>
+        {% for room in rooms %}
+        <div>
+          <a href="/?room={{room.id}}">{{room.title}}</a>
+          {% if room.isPrivate == True %}
+          <span>(privaatti)</span>
+          {% endif%}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="create-room">
+        <h2>Luo uusi huone</h2>
+        <form action="/createRoom" method="POST">
+          <input
+            type="text"
+            name="roomName"
+            placeholder="Huoneen nimi"
+            required
+            minlength="1"
+            maxlength="30"
+          />
+          <label for="isPrivate">Yksityinen:</label>
+          <input
+            type="checkbox"
+            label="Yksityinen"
+            name="isPrivate"
+            value="true"
+          />
+          <input type="submit" value="Luo huone" />
+        </form>
+      </div>
+    </div>
+    {% if isPrivate and userHasAccess %}
+    <div class="room-users">
+      {% for user in members %}
       <div>
-        <a href="/?room={{room.id}}">{{room.title}}</a>
-        {% if room.isPrivate == True %}
-        <span>(privaatti)</span>
-        {% endif%}
+        {{user.username}}
+        <a href="removeUserFromRoom/?user={{user.id}}"
+          >Poista käyttäjä huoneesta</a
+        >
       </div>
       {% endfor %}
     </div>
-    <div class="create-room">
-      <h2>Luo uusi huone</h2>
-      <form action="/createRoom" method="POST">
-        <input
-          type="text"
-          name="roomName"
-          placeholder="Huoneen nimi"
-          required
-          minlength="1"
-          maxlength="30"
-        />
-        <label for="isPrivate">Yksityinen:</label>
-        <input
-          type="checkbox"
-          label="Yksityinen"
-          name="isPrivate"
-          value="true"
-        />
-        <input type="submit" value="Luo huone" />
+
+    <div class="invite-user">
+      <form action="/inviteUser" method="POST">
+        <label for="inviteUsers">Kutsu käyttäjiä huoneeseen</label>
+        <select name="inviteUsers">
+          {% for user in nonMembers %}
+          <option value="{{user.id}}">{{user.username}}</option>
+          {% endfor %}
+        </select>
+        <input type="submit" value="Lisää käyttäjä" />
       </form>
     </div>
-  </div>
-  {% if isPrivate and userHasAccess %}
-  <div class="room-users">
-    {% for user in members %}
-      <div>{{user.username}} <a href="removeUserFromRoom/?user={{user.id}}">Poista käyttäjä huoneesta</a>  </div>
-    {% endfor %}
-  </div>
-
-  <div class="invite-user">
-    <form action="/inviteUser" method="POST">
-      
-      <label for="inviteUsers">Kutsu käyttäjiä huoneeseen</label>
-      <select name="inviteUsers">
-        
-        {% for user in nonMembers %}
-        <option value="{{user.id}}" >{{user.username}}</option>
+    {% endif %}
+    <div class="chat">
+      <h2>Huone: {{title}}</h2>
+      <form action="/postMessage" method="POST">
+        <input
+          type="text"
+          name="messageContent"
+          required
+          minlength="1"
+          maxlength="280"
+        />
+        <input type="submit" value="Viestittele" />
+      </form>
+      <div class="messages">
+        {% for message in messages %}
+        <div class="message" style="border: solid black 1px; margin-top: 2px">
+          <div class="messageHeader">
+            <h6>Kirjoittaja: {{message.author}}</h6>
+            <span>{{message.postedTime.strftime('%H:%M %d.%m.%Y') }}</span>
+          </div>
+          <div class="messageContent" style="background-color: #dedede">
+            {{message.content}}
+          </div>
+        </div>
+        <div class="message-replies">
+          {% if message.replies|length > 0%}
+          <h6>Vastauksia:</h6>
+          {% endif %} {% for reply in message.replies %}
+          <p>
+            {{message.postedTime.strftime('%H:%M %d.%m.%Y') }} {{reply.author}}
+            : {{reply.content}}
+          </p>
+          {% endfor %}
+          <form action="/postReply" method="POST">
+            <input type="hidden" name="parent" value="{{message.id}}" />
+            <input
+              type="text"
+              name="messageContent"
+              required
+              minlength="1"
+              maxlength="280"
+            />
+            <input type="submit" value="Vastaa" />
+          </form>
+        </div>
+        <div class="message-footer">
+          <p>{{message.likes}} tykkää</p>
+          <a href="/like/?message={{message.id}}">Tykkää</a>
+        </div>
         {% endfor %}
-        
-      </select>
-      <input type="submit" value="Lisää käyttäjä" />
-      
-    </form>
-  </div>
-  {% endif %}
-  <div class="chat">
-    <h2>Huone: {{title}}</h2>
-    <form action="/postMessage" method="POST">
-      <input
-        type="text"
-        name="messageContent"
-        required
-        minlength="1"
-        maxlength="280"
-      />
-      <input type="submit" value="Viestittele" />
-    </form>
-    <div class="messages">
-      {% for message in messages %}
-      <div class="message" style="border: solid black 1px; margin-top: 2px">
-        <div class="messageHeader">
-          <h6>Kirjoittaja: {{message.author}}</h6>
-          <span>{{message.postedTime.strftime('%H:%M %d.%m.%Y') }}</span>
-        </div>
-        <div class="messageContent" style="background-color: #dedede">
-          {{message.content}}
-        </div>
       </div>
-      <div class="message-footer">
-        <p>{{message.likes}} tykkää</p><a href="/like/?message={{message.id}}" >Tykkää</a>
-      </div>
-      {% endfor %}
     </div>
   </div>
+  <a href="/account">Tilin hallinta</a>
+  <a href="/logout">Kirjaudu ulos</a>
 </div>
-<a href="/account">Tilin hallinta</a>
-<a href="/logout">Kirjaudu ulos</a>
-{% else %}
-{% if error %}
-  <div class="error">{{error}}</div>
-{% endif %} 
+{% else %} {% if error %}
+<div class="error">{{error}}</div>
+{% endif %}
 <form action="/login" method="POST">
   <p>
     Tunnus:<br />

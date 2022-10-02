@@ -194,3 +194,29 @@ def countMessageLikes(msgID: int):
     result = db.session.execute(sql, {"msgID": msgID})    
     return result.first()[0]
   except Exception as e: print(e)
+
+def addReplyToDB(roomID:int, author:int, content:str, postedTime:str, parentMessage:int):
+  try:    
+    sqlAddMessage = "INSERT INTO messages (author, content, postedTime) VALUES (:author, :content, :postedTime) RETURNING id"
+    result = db.session.execute(sqlAddMessage, {"author":author, "content":content, "postedTime":postedTime})
+    messageID = result.first()[0]
+
+    sqlAddRelation = "INSERT INTO repliedMessages (parentMessage, childMessage) VALUES (:parentMessage, :messagesID)"
+    db.session.execute(sqlAddRelation, {"parentMessage":parentMessage, "messagesID":messageID}) 
+
+    db.session.commit() 
+
+  except Exception as e: print(e)
+
+def getRepliesFromDB(msgID: int):
+  try:    
+    sql = """SELECT messages.id, users.username, messages.content, messages.postedTime 
+          FROM messages
+          LEFT JOIN repliedMessages ON repliedMessages.childMessage = messages.id
+          LEFT JOIN users ON messages.author = users.id
+          WHERE repliedMessages.parentMessage = (:msgID)
+          ORDER BY messages.postedTime"""
+
+    result = db.session.execute(sql, {"msgID":msgID})         
+    return result.fetchall()  
+  except Exception as e: print(e)
