@@ -105,3 +105,5 @@ def getRoomTitleFromDB(roomID: int):
       return result.fetchall()[0][0]
     except Exception as e: print(e)
     
+def deleteUserFromDB(userID: int):
+  None

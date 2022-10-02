@@ -16,3 +16,6 @@ def userLogin(username: str, password: str) -> int:
   if check_password_hash(passwordAndID[1], password):
     return passwordAndID[0]
   return -1
+
+def deleteUser(userID:int):
+  None

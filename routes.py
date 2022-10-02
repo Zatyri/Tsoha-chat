@@ -122,3 +122,24 @@ def createRoom():
 
 
     return redirect("/?room=" + str(roomID))
+
+@app.route("/account")
+def account():
+    if not "userID" in session:
+        return redirect("/")
+    
+    error = None
+
+    if "error" in session:
+        error = session['error']
+        del session['error']
+
+    return render_template("account.html", error=error)
+
+@app.route("/deleteMe")
+def deleteUser():
+    if not "userID" in session:
+        return redirect("/")
+    
+
+    return redirect("/")
