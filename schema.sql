@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS usersInRoom
   userID integer references users(id) ON DELETE SET NULL
 );
 
-INSERT INTO rooms (title) SELECT 'Public' 
+INSERT INTO rooms (title) SELECT 'Julkinen' 
 WHERE NOT EXISTS (SELECT * FROM rooms WHERE rooms.id = 1);
 
 CREATE TABLE IF NOT EXISTS messages
