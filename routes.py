@@ -3,7 +3,7 @@ from flask import render_template, session, request, redirect
 from werkzeug.security import generate_password_hash
 from models import User
 from services.auth import addUser, changePassword, checkIfUserExists, checkUsersPassword, deleteUser, userLogin
-from services.messageService import addMessage, addUserToPrivateRoom, checkUserAccessToRoom, getRoomAdmin, getUsersInRoom, createNewRoom, getMessagesInRoom, getRoomTitle, getUsersRooms, getIsRoomPrivate, removeUserFromRoom
+from services.messageService import addMessage, addUserToPrivateRoom, checkUserAccessToRoom, getRoomAdmin, getUsersInRoom, createNewRoom, getMessagesInRoom, getRoomTitle, getUsersRooms, getIsRoomPrivate, likeMessage, removeUserFromRoom
 
 
 @app.route("/")
@@ -13,7 +13,6 @@ def index():
     userID = -1
     roomID = "1"
     userHasAccess = False
-    error = None
     error = None
     if 'username' in session:
         id_token = session['username']
@@ -203,3 +202,19 @@ def updatePassword():
     changePassword(userID, password)
 
     return redirect("/account")
+
+@app.route("/like/", )
+def likeMsq():
+
+    userID = session['userID']   
+    roomID = session["activeRoom"]   
+    if checkUserAccessToRoom(roomID, userID):
+        return redirect("/?room=" + str(roomID))
+    
+    messageToLike = request.args.get('message')
+
+    if not likeMessage(messageToLike, userID):        
+        session['error'] = "Et voi tykätä samasta viestistä kuin kerran"
+
+    return redirect("/?room=" + str(roomID))
+

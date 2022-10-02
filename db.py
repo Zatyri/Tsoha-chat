@@ -34,7 +34,7 @@ def getUsersPasswordAndID(username: str):
     
 def getMessagesInRoomFromDB(roomID:int):  
   try:    
-    sql = """SELECT messages.id, rooms.title, rooms.isPrivate, messages.content, messages.likes, messages.postedTime, users.username
+    sql = """SELECT messages.id, rooms.title, rooms.isPrivate, messages.content, messages.postedTime, users.username
           FROM messages
           LEFT JOIN messagesinroom ON messagesinroom.messageid = messages.id
           LEFT JOIN users ON messages.author = users.id
@@ -172,4 +172,25 @@ def updateUsersPassword(userID: int, newPassword: str):
     sql = "UPDATE users SET password = (:newPassword) WHERE id = (:userID)"
     db.session.execute(sql, {"userID":userID, "newPassword": newPassword})
     db.session.commit() 
+  except Exception as e: print(e)
+
+def addLikeToMessageInDB(msgID: int, userID:int):
+  try:    
+    sql = "INSERT INTO likedMessages (messageID, userID) VALUES (:msgID, :userID)"
+    db.session.execute(sql, {"msgID": msgID, "userID": userID})
+    db.session.commit() 
+  except Exception as e: print(e)
+
+def checkIfUserLikedMessage(msgID: int, userID: int):
+  try:    
+    sql = "SELECT * FROM likedMessages WHERE userID = (:userID) AND messageID = (:msgID)"
+    result = db.session.execute(sql, {"msgID": msgID, "userID": userID})
+    return result.first()
+  except Exception as e: print(e)
+
+def countMessageLikes(msgID: int):
+  try:    
+    sql = "SELECT COUNT(*) FROM likedMessages WHERE messageID = (:msgID)"
+    result = db.session.execute(sql, {"msgID": msgID})    
+    return result.first()[0]
   except Exception as e: print(e)

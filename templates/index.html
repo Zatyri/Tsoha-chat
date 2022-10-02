@@ -2,6 +2,9 @@
 {{ super() }} {% endblock %} {% block content %} {% if session.username %}
 <p>Tervetuloa {{ session.username }}!</p>
 <div class="content">
+  {% if error %}
+  <div class="error">{{error}}</div>
+{% endif %} 
   <div class="rooms">
     <div class="room-list">
       <h2>Huoneet</h2>
@@ -81,6 +84,9 @@
         <div class="messageContent" style="background-color: #dedede">
           {{message.content}}
         </div>
+      </div>
+      <div class="message-footer">
+        <p>{{message.likes}} tykkää</p><a href="/like/?message={{message.id}}" >Tykkää</a>
       </div>
       {% endfor %}
     </div>

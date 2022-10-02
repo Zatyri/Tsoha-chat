@@ -40,3 +40,9 @@ CREATE TABLE IF NOT EXISTS repliedMessages
   parentMessage integer references messages(id),
   childMessage integer references messages(id)
 );
+
+CREATE TABLE IF NOT EXISTS likedMessages
+(
+  messageID integer references messages(id),
+  userID integer references users(id)
+);

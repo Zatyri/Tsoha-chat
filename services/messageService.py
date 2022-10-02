@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from models import Message, Room, SimpleUser
-from db import addMessageToDB, addUserToRoomInDB, getIsRoomInfo, getUsersInRoomFromDB,getUsersNotInRoomFromDB, createRoomToDB, getMessagesInRoomFromDB, getRoomIsPrivate, getRoomTitleFromDB, getUsersRoomsfromDB, getUserInRoom, removeUserFromRoomInDB
+from db import addLikeToMessageInDB, addMessageToDB, addUserToRoomInDB, checkIfUserLikedMessage, countMessageLikes, getIsRoomInfo, getUsersInRoomFromDB,getUsersNotInRoomFromDB, createRoomToDB, getMessagesInRoomFromDB, getRoomIsPrivate, getRoomTitleFromDB, getUsersRoomsfromDB, getUserInRoom, removeUserFromRoomInDB
 
 
 def getMessagesInRoom(roomID: int=1, userID: int = None):
@@ -17,10 +17,17 @@ def getMessagesInRoom(roomID: int=1, userID: int = None):
     return []
 
   for msg in messagesResult:
-    author = msg[6]    
+    
+    id = msg[0]
+    author = msg[5]    
+    content = msg[3]
+    likes = countMessageLikes(msg[0])
+    postedTime = msg[4]
+    roomName = msg[1]
+    privateRoom = msg[2]
     if author == None:
       author = "**Poistunut käyttäjä**"
-    messageArray.append(Message(msg[0], author, roomID, msg[3], msg[4], msg[5], msg[1], msg[2]))
+    messageArray.append(Message(id, author, roomID, content, likes, postedTime, roomName, privateRoom))
   
   return list(reversed(messageArray))
 
@@ -59,6 +66,7 @@ def getRoomTitle(roomID: int, userID: int):
 
 def getIsRoomPrivate(roomID: int):
   roomDetails = getIsRoomInfo(roomID)
+  print(roomDetails)
   if type(roomDetails[3]) is bool:
     return roomDetails[3]
   return True
@@ -88,3 +96,9 @@ def getRoomAdmin(roomID: int):
 def removeUserFromRoom(userID: int, roomID: int):
   removeUserFromRoomInDB(userID, roomID)
 
+def likeMessage(msgId: int, userId: int):
+  if checkIfUserLikedMessage(msgId, userId) != None:
+    
+    return False
+  addLikeToMessageInDB(msgId, userId)
+  return True
