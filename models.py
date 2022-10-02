@@ -12,8 +12,13 @@ class User:
     self.uuid = str(uuid.uuid1())
     self.role = role
 
+class SimpleUser:
+    def __init__(self, username, id):
+      self.username = username
+      self.id = id
+
 class Message:
-  def __init__(self, id:int, author:str, room:int, content:str, likes:int, postedTime:str, roomName:str):
+  def __init__(self, id:int, author:str, room:int, content:str, likes:int, postedTime:str, roomName:str, privateRoom:bool):
     self.id = id
     self.author = author
     self.room = room
@@ -21,6 +26,7 @@ class Message:
     self.likes = likes
     self.postedTime = postedTime
     self.roomName = roomName
+    self.privateRoom = privateRoom
     
 class Room:
   def __init__(self, id:int, title:str, creator:str = "public", isPrivate:bool = False):
