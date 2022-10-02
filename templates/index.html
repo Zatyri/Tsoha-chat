@@ -17,7 +17,14 @@
     <div class="create-room">
       <h2>Luo uusi huone</h2>
       <form action="/createRoom" method="POST">
-        <input type="text" name="roomName" placeholder="Huoneen nimi" />
+        <input
+          type="text"
+          name="roomName"
+          placeholder="Huoneen nimi"
+          required
+          minlength="1"
+          maxlength="30"
+        />
         <label for="isPrivate">Yksityinen:</label>
         <input
           type="checkbox"
@@ -32,34 +39,14 @@
 
   <div class="chat">
     <h2>Huone: {{title}}</h2>
-	
-
-
-    {% if isPrivate and userHasAccess %}
-    <div class="room-users">
-      {% for user in members %}
-        <div>{{user.username}} <a href="removeUserFromRoom/?user={{user.id}}">Poista käyttäjä huoneesta</a>  </div>
-      {% endfor %}
-    </div>
-
-    <div class="invite-user">
-      <form action="/inviteUser" method="POST">
-        
-        <label for="inviteUsers">Kutsu käyttäjiä huoneeseen</label>
-        <select name="inviteUsers">
-          
-          {% for user in nonMembers %}
-          <option value="{{user.id}}" >{{user.username}}</option>
-          {% endfor %}
-          
-        </select>
-        <input type="submit" value="Lisää käyttäjä" />
-        
-      </form>
-    </div>
-    {% endif %}
     <form action="/postMessage" method="POST">
-      <input type="text" name="messageContent" />
+      <input
+        type="text"
+        name="messageContent"
+        required
+        minlength="1"
+        maxlength="280"
+      />
       <input type="submit" value="Viestittele" />
     </form>
     <div class="messages">
@@ -76,9 +63,12 @@
     </div>
   </div>
 </div>
-
+<a href="/account">Tilin hallinta</a>
 <a href="/logout">Kirjaudu ulos</a>
 {% else %}
+{% if error %}
+  <div class="error">{{error}}</div>
+{% endif %} 
 <form action="/login" method="POST">
   <p>
     Tunnus:<br />
