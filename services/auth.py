@@ -1,6 +1,6 @@
-from db import addUserToDatabase, checkIfUserExcistsinDatabase, getUsersPasswordAndID
+from db import addUserToDatabase, checkIfUserExcistsinDatabase, deleteUserFromDB, getUsersPassword, getUsersPasswordAndID, updateUsersPassword
 from models import User
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 def checkIfUserExists(user: str) -> bool:
   return checkIfUserExcistsinDatabase(user)
@@ -18,4 +18,13 @@ def userLogin(username: str, password: str) -> int:
   return -1
 
 def deleteUser(userID:int):
-  None
+  deleteUserFromDB(userID)
+
+def checkUsersPassword(userID:int, givenPassword:str):
+  password = getUsersPassword(userID)
+  if check_password_hash(password, givenPassword):
+    return True
+  return False
+
+def changePassword(userID: int, password:str):
+  updateUsersPassword(userID, generate_password_hash(password))

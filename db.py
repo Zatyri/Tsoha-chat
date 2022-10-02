@@ -34,9 +34,11 @@ def getUsersPasswordAndID(username: str):
     
 def getMessagesInRoomFromDB(roomID:int):  
   try:    
-    sql = """SELECT DISTINCT ON (messages.id) messages.id, rooms.title, rooms.isPrivate, messages.content, messages.likes, messages.postedTime, users.username
-          FROM rooms, users, messagesinroom
-          LEFT JOIN messages ON messages.id = messagesinroom.messageid
+    sql = """SELECT messages.id, rooms.title, rooms.isPrivate, messages.content, messages.likes, messages.postedTime, users.username
+          FROM messages
+          LEFT JOIN messagesinroom ON messagesinroom.messageid = messages.id
+          LEFT JOIN users ON messages.author = users.id
+          LEFT JOIN rooms ON rooms.id = messagesinroom.room
           WHERE messagesinroom.room = (:roomID)"""
 
     result = db.session.execute(sql, {"roomID":roomID})         
@@ -149,5 +151,24 @@ def removeUserFromRoomInDB(userID: int, roomID: int):
     db.session.execute(sql, {"roomID": roomID, "userID": userID})    
     db.session.commit() 
   except Exception as e: print(e)
+
 def deleteUserFromDB(userID: int):
-  None
+  try:    
+    sql = "DELETE FROM users WHERE id = (:userID)"
+    db.session.execute(sql, {"userID": userID})    
+    db.session.commit() 
+  except Exception as e: print(e)
+
+def getUsersPassword(userID: int):
+  try:    
+    sql = "SELECT password FROM users WHERE users.id = (:userID)"
+    result = db.session.execute(sql, {"userID":userID})
+    return result.first()[0]
+  except Exception as e: print(e)
+
+def updateUsersPassword(userID: int, newPassword: str):
+  try:    
+    sql = "UPDATE users SET password = (:newPassword) WHERE id = (:userID)"
+    db.session.execute(sql, {"userID":userID, "newPassword": newPassword})
+    db.session.commit() 
+  except Exception as e: print(e)

@@ -2,7 +2,7 @@ from app import app
 from flask import render_template, session, request, redirect
 from werkzeug.security import generate_password_hash
 from models import User
-from services.auth import addUser, checkIfUserExists, userLogin
+from services.auth import addUser, changePassword, checkIfUserExists, checkUsersPassword, deleteUser, userLogin
 from services.messageService import addMessage, addUserToPrivateRoom, checkUserAccessToRoom, getRoomAdmin, getUsersInRoom, createNewRoom, getMessagesInRoom, getRoomTitle, getUsersRooms, getIsRoomPrivate, removeUserFromRoom
 
 
@@ -174,9 +174,31 @@ def account():
     return render_template("account.html", error=error)
 
 @app.route("/deleteMe")
-def deleteUser():
+def deleteMe():
     if not "userID" in session:
-        return redirect("/")
+        return redirect("/")    
     
-
+    deleteUser(session['userID'])
+    session.clear()
     return redirect("/")
+
+@app.route("/changePassword", methods=["POST"])
+def updatePassword():
+
+    userID = session['userID']        
+    currentPassword = request.form['currentPassword']
+
+    if not checkUsersPassword(userID, currentPassword):
+        session['error'] = "Nykyinen salasana meni väärin"
+        return redirect("/account")
+    
+    password = request.form['newPassword']
+    passwordVerification = request.form['newPasswordVerification']
+    
+    if password != passwordVerification:
+        session['error'] = "Salasanat eivät täsmää"
+        return redirect("/account")
+
+    changePassword(userID, password)
+
+    return redirect("/account")
