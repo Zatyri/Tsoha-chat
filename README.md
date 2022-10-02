@@ -1,10 +1,10 @@
 # Tsoha-chat
 Tämä sovellus on toteutettu Helsingin yliopiston tietokantasovellus harjoitustyö kurssia varten
-
 ## Sovelluksen idea
 Tämä projekti on yksinkertainen chat-sovellus, jossa käyttäjät voivat kommunikoida keskenään
 
 ## Sovelluksen keskeiset toiminnot
+
 - Käyttäjä voi rekisteröityä ja luoda itselleen yksinkertaisen profiilin (tehty)
 - Käyttäjähallinnan keskeiset toiminnot
   - Salasanan vaihtaminen
@@ -23,3 +23,4 @@ Uusi käyttäjä voi rekisteröityä ja kirjautua sisään sekä ulos. Käyttäj
 
 ## Linkki sovellukseen
 Linkki: https://tsoha-chat1.herokuapp.com/
+

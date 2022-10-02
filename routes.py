@@ -3,7 +3,7 @@ from flask import render_template, session, request, redirect
 from werkzeug.security import generate_password_hash
 from models import User
 from services.auth import addUser, checkIfUserExists, userLogin
-from services.messageService import addMessage, createNewRoom, getMessagesInRoom, getRoomTitle, getUsersRooms
+from services.messageService import addMessage, addUserToPrivateRoom, checkUserAccessToRoom, getRoomAdmin, getUsersInRoom, createNewRoom, getMessagesInRoom, getRoomTitle, getUsersRooms, getIsRoomPrivate, removeUserFromRoom
 
 
 @app.route("/")
@@ -11,18 +11,16 @@ def index():
     rooms = []    
     messages = []
     userID = -1
+    roomID = "1"
+    userHasAccess = False
     if 'username' in session:
         id_token = session['username']
         messages = getMessagesInRoom()
 
-    if request.args.get('room'):
+    if request.args.get('room'):           
         roomID = request.args.get('room')
-        if roomID == None:
-            roomID = 1
-        session["activeRoom"] = roomID
-
-    if 'activeRoom' not in session:
-        session["activeRoom"] = 1
+    
+    session["activeRoom"] = roomID
         
     if 'userID' in session:
         userID = session['userID']
@@ -30,11 +28,20 @@ def index():
 
     messages = getMessagesInRoom(session["activeRoom"], userID)
     title = getRoomTitle(session["activeRoom"], userID)
+    isPrivate = getIsRoomPrivate(session["activeRoom"])
+
+    nonMembers = []
+    members = []
+    if isPrivate:
+        nonMembers = getUsersInRoom(session["activeRoom"], True)    
+        members = getUsersInRoom(session["activeRoom"]) 
+    
     if title == None:
         title = "johon sinulla ei ole pääsyä"
+    else:
+        userHasAccess = True
 
-
-    return render_template("index.html", messages=messages, rooms = rooms, title=title)
+    return render_template("index.html", messages=messages, rooms = rooms, title=title, isPrivate=isPrivate, nonMembers=nonMembers, members=members , userHasAccess=userHasAccess)
 
 @app.route("/postMessage", methods=["POST"])
 def postMessage():
@@ -107,5 +114,35 @@ def createRoom():
     roomID = createNewRoom(userID, isPrivate, roomName)
     session["activeRoom"] = roomID
 
+
+    return redirect("/?room=" + str(roomID))
+
+@app.route("/inviteUser", methods=["POST"])
+def inviteUser():
+
+    userID = session['userID']        
+    roomID = session["activeRoom"]
+
+    if checkUserAccessToRoom(roomID, userID):
+        return redirect("/?room=" + str(roomID))
+    
+    userToAdd = request.form.get('inviteUsers')
+
+    addUserToPrivateRoom(userToAdd, roomID)
+
+    return redirect("/?room=" + str(roomID))
+
+@app.route("/removeUserFromRoom/",)
+def removeUser():
+
+    userID = session['userID']        
+    roomID = session["activeRoom"]
+    
+    userToRemove = request.args.get('user')
+    roomAdmin = getRoomAdmin(roomID)
+
+    if int(userToRemove) == roomAdmin :
+        return redirect("/?room=" + str(roomID)) 
+    removeUserFromRoom(userToRemove, roomID)
 
     return redirect("/?room=" + str(roomID))

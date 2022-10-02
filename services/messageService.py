@@ -1,6 +1,7 @@
 from datetime import datetime
-from models import Message, Room
-from db import addMessageToDB, createRoomToDB, getMessagesInRoomFromDB, getRoomIsPrivate, getRoomTitleFromDB, getUsersRoomsfromDB, getUserInRoom
+
+from models import Message, Room, SimpleUser
+from db import addMessageToDB, addUserToRoomInDB, getIsRoomInfo, getUsersInRoomFromDB,getUsersNotInRoomFromDB, createRoomToDB, getMessagesInRoomFromDB, getRoomIsPrivate, getRoomTitleFromDB, getUsersRoomsfromDB, getUserInRoom, removeUserFromRoomInDB
 
 
 def getMessagesInRoom(roomID: int=1, userID: int = None):
@@ -15,9 +16,8 @@ def getMessagesInRoom(roomID: int=1, userID: int = None):
   if messagesResult == None:
     return []
 
-  for msg in messagesResult:
-    print(msg)
-    messageArray.append(Message(msg[0], msg[6], roomID, msg[3], msg[4], msg[5], msg[1]))
+  for msg in messagesResult:    
+    messageArray.append(Message(msg[0], msg[6], roomID, msg[3], msg[4], msg[5], msg[1], msg[2]))
   
   return list(reversed(messageArray))
 
@@ -25,7 +25,7 @@ def checkUserAccessToRoom(roomID: int, userID: int):
   isPrivate = getRoomIsPrivate(roomID)  
   if isPrivate:
     result = getUserInRoom(roomID, userID) 
-    if len(result) > 0 and result[0][0] == userID:        
+    if len(result) > 0 and result[0][0] == userID:  
       return False
     return True
   
@@ -53,3 +53,35 @@ def getRoomTitle(roomID: int, userID: int):
   if checkUserAccessToRoom(roomID, userID):
     return None
   return getRoomTitleFromDB(roomID)
+
+def getIsRoomPrivate(roomID: int):
+  roomDetails = getIsRoomInfo(roomID)
+  if type(roomDetails[3]) is bool:
+    return roomDetails[3]
+  return True
+
+def getUsersInRoom(roomID: int, getNonMembers: bool = False):  
+  if getNonMembers:
+    users = getUsersNotInRoomFromDB(roomID)
+  else:
+    users = getUsersInRoomFromDB(roomID)
+  userList = []
+  for user in users:
+    userList.append(
+      SimpleUser(user[1], user[0])
+    )
+  return userList
+
+def addUserToPrivateRoom(userID: int, roomID: int):
+  addUserToRoomInDB(userID, roomID)
+
+def getRoomAdmin(roomID: int):
+  roomInfo = getIsRoomInfo(roomID)
+  if not roomInfo == None:
+    return roomInfo[2]
+  else:
+    return -1
+
+def removeUserFromRoom(userID: int, roomID: int):
+  removeUserFromRoomInDB(userID, roomID)
+
