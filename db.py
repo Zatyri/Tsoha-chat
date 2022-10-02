@@ -34,10 +34,13 @@ def getUsersPasswordAndID(username: str):
     
 def getMessagesInRoomFromDB(roomID:int):  
   try:    
-    sql = """SELECT DISTINCT ON (messages.id) messages.id, rooms.title, rooms.isPrivate, messages.content, messages.likes, messages.postedTime, users.username
-          FROM rooms, users, messagesinroom
-          LEFT JOIN messages ON messages.id = messagesinroom.messageid
-          WHERE messagesinroom.room = (:roomID)"""
+    sql = """SELECT messages.id, rooms.title, rooms.isPrivate, messages.content, messages.postedTime, users.username
+          FROM messages
+          LEFT JOIN messagesinroom ON messagesinroom.messageid = messages.id
+          LEFT JOIN users ON messages.author = users.id
+          LEFT JOIN rooms ON rooms.id = messagesinroom.room
+          WHERE messagesinroom.room = (:roomID)
+          ORDER BY messages.postedTime"""
 
     result = db.session.execute(sql, {"roomID":roomID})         
     return result.fetchall()  
@@ -148,4 +151,72 @@ def removeUserFromRoomInDB(userID: int, roomID: int):
     sql = "DELETE FROM usersInRoom WHERE userID = (:userID) AND room = (:roomID)"
     db.session.execute(sql, {"roomID": roomID, "userID": userID})    
     db.session.commit() 
+  except Exception as e: print(e)
+
+def deleteUserFromDB(userID: int):
+  try:    
+    sql = "DELETE FROM users WHERE id = (:userID)"
+    db.session.execute(sql, {"userID": userID})    
+    db.session.commit() 
+  except Exception as e: print(e)
+
+def getUsersPassword(userID: int):
+  try:    
+    sql = "SELECT password FROM users WHERE users.id = (:userID)"
+    result = db.session.execute(sql, {"userID":userID})
+    return result.first()[0]
+  except Exception as e: print(e)
+
+def updateUsersPassword(userID: int, newPassword: str):
+  try:    
+    sql = "UPDATE users SET password = (:newPassword) WHERE id = (:userID)"
+    db.session.execute(sql, {"userID":userID, "newPassword": newPassword})
+    db.session.commit() 
+  except Exception as e: print(e)
+
+def addLikeToMessageInDB(msgID: int, userID:int):
+  try:    
+    sql = "INSERT INTO likedMessages (messageID, userID) VALUES (:msgID, :userID)"
+    db.session.execute(sql, {"msgID": msgID, "userID": userID})
+    db.session.commit() 
+  except Exception as e: print(e)
+
+def checkIfUserLikedMessage(msgID: int, userID: int):
+  try:    
+    sql = "SELECT * FROM likedMessages WHERE userID = (:userID) AND messageID = (:msgID)"
+    result = db.session.execute(sql, {"msgID": msgID, "userID": userID})
+    return result.first()
+  except Exception as e: print(e)
+
+def countMessageLikes(msgID: int):
+  try:    
+    sql = "SELECT COUNT(*) FROM likedMessages WHERE messageID = (:msgID)"
+    result = db.session.execute(sql, {"msgID": msgID})    
+    return result.first()[0]
+  except Exception as e: print(e)
+
+def addReplyToDB(roomID:int, author:int, content:str, postedTime:str, parentMessage:int):
+  try:    
+    sqlAddMessage = "INSERT INTO messages (author, content, postedTime) VALUES (:author, :content, :postedTime) RETURNING id"
+    result = db.session.execute(sqlAddMessage, {"author":author, "content":content, "postedTime":postedTime})
+    messageID = result.first()[0]
+
+    sqlAddRelation = "INSERT INTO repliedMessages (parentMessage, childMessage) VALUES (:parentMessage, :messagesID)"
+    db.session.execute(sqlAddRelation, {"parentMessage":parentMessage, "messagesID":messageID}) 
+
+    db.session.commit() 
+
+  except Exception as e: print(e)
+
+def getRepliesFromDB(msgID: int):
+  try:    
+    sql = """SELECT messages.id, users.username, messages.content, messages.postedTime 
+          FROM messages
+          LEFT JOIN repliedMessages ON repliedMessages.childMessage = messages.id
+          LEFT JOIN users ON messages.author = users.id
+          WHERE repliedMessages.parentMessage = (:msgID)
+          ORDER BY messages.postedTime"""
+
+    result = db.session.execute(sql, {"msgID":msgID})         
+    return result.fetchall()  
   except Exception as e: print(e)

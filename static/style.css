@@ -1,6 +1,85 @@
+.main {
+  background-color: #DEDEDE;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .content {
+  width: 100%;
   display: flex;
   flex-direction: row-reverse;
   justify-content: space-around;
+}
 
+.chat {
+  max-width: 70%;
+}
+
+#post-message {
+  margin: 1rem 0;
+  padding: 0.5rem;
+  background-color: white;
+}
+
+#messagebox {
+  width: 100%;
+  height: 3rem;
+  margin: 1rem 0;
+}
+
+.message-content {
+  background-color: #EEEEEE;
+  padding: 0.5rem;
+  border: 1px solid black;
+  margin-bottom: 0.5rem;
+}
+
+.messageContent {
+  padding: 0.5rem;
+  overflow: auto;
+  overflow-wrap: break-word;
+}
+
+.likes {
+  display: flex;
+  flex-direction: row;
+}
+
+.likes p {
+  margin-right: 0.5rem;
+}
+
+.message-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.reply {
+  background-color: #DEDEDE;
+  padding: 0.5rem
+}
+
+.messageHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+
+.create-room form {
+  display: flex;
+  flex-direction: column;
+}
+
+.error {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: red;
+  border-radius: 5px;
+  padding: 0.5rem;
+  color: white;
+  font-weight: bold;
 }

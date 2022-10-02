@@ -18,7 +18,7 @@ class SimpleUser:
       self.id = id
 
 class Message:
-  def __init__(self, id:int, author:str, room:int, content:str, likes:int, postedTime:str, roomName:str, privateRoom:bool):
+  def __init__(self, id:int, author:str, room:int, content:str, likes:int, postedTime:str, roomName:str, privateRoom:bool, replies ):
     self.id = id
     self.author = author
     self.room = room
@@ -27,6 +27,14 @@ class Message:
     self.postedTime = postedTime
     self.roomName = roomName
     self.privateRoom = privateRoom
+    self.replies = replies
+
+class Reply:
+  def __init__(self, id:int, author:str, content:str, postedTime:str):
+    self.id = id
+    self.author = author
+    self.content = content
+    self.postedTime = postedTime        
     
 class Room:
   def __init__(self, id:int, title:str, creator:str = "public", isPrivate:bool = False):

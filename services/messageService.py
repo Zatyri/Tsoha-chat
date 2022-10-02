@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
-from models import Message, Room, SimpleUser
-from db import addMessageToDB, addUserToRoomInDB, getIsRoomInfo, getUsersInRoomFromDB,getUsersNotInRoomFromDB, createRoomToDB, getMessagesInRoomFromDB, getRoomIsPrivate, getRoomTitleFromDB, getUsersRoomsfromDB, getUserInRoom, removeUserFromRoomInDB
+from models import Message, Reply, Room, SimpleUser
+from db import addLikeToMessageInDB, addMessageToDB, addReplyToDB, addUserToRoomInDB, checkIfUserLikedMessage, countMessageLikes, getIsRoomInfo, getRepliesFromDB, getUsersInRoomFromDB,getUsersNotInRoomFromDB, createRoomToDB, getMessagesInRoomFromDB, getRoomIsPrivate, getRoomTitleFromDB, getUsersRoomsfromDB, getUserInRoom, removeUserFromRoomInDB
 
 
 def getMessagesInRoom(roomID: int=1, userID: int = None):
@@ -16,10 +16,38 @@ def getMessagesInRoom(roomID: int=1, userID: int = None):
   if messagesResult == None:
     return []
 
-  for msg in messagesResult:    
-    messageArray.append(Message(msg[0], msg[6], roomID, msg[3], msg[4], msg[5], msg[1], msg[2]))
+  for msg in messagesResult:
+    
+    id = msg[0]
+    author = msg[5]    
+    content = msg[3]
+    likes = countMessageLikes(msg[0])
+    postedTime = msg[4]
+    roomName = msg[1]
+    privateRoom = msg[2]
+    replies = getMessageReplies(msg[0])
+    if author == None:
+      author = "**Poistunut käyttäjä**"
+    messageArray.append(Message(id, author, roomID, content, likes, postedTime, roomName, privateRoom, replies))
   
   return list(reversed(messageArray))
+
+def getMessageReplies(msgID:int):
+
+  messagesResult = getRepliesFromDB(msgID)
+  messageArray =  []
+  
+  if messagesResult == None:
+    return []
+  for msg in messagesResult:
+    id = msg[0]
+    author = msg[1]
+    content = msg[2]
+    postedTime = msg[3] 
+    if author == None:
+      author = "**Poistunut käyttäjä**"
+    messageArray.append(Reply(id, author, content, postedTime))
+  return messageArray
 
 def checkUserAccessToRoom(roomID: int, userID: int):
   isPrivate = getRoomIsPrivate(roomID)  
@@ -31,8 +59,11 @@ def checkUserAccessToRoom(roomID: int, userID: int):
   
   return False
   
-def addMessage(roomID:int, author:int, content:str):
-  addMessageToDB(roomID, author, content, datetime.utcnow())
+def addMessage(roomID:int, author:int, content:str, parent: int = -1):  
+  if parent >= 0:
+    addReplyToDB(roomID, author, content, datetime.now(), parent)
+  else:
+    addMessageToDB(roomID, author, content, datetime.now())
 
 def createNewRoom(userID:int, isPrivate:bool, roomName:str)-> int:
   if isPrivate is None:
@@ -56,6 +87,7 @@ def getRoomTitle(roomID: int, userID: int):
 
 def getIsRoomPrivate(roomID: int):
   roomDetails = getIsRoomInfo(roomID)
+  print(roomDetails)
   if type(roomDetails[3]) is bool:
     return roomDetails[3]
   return True
@@ -85,3 +117,9 @@ def getRoomAdmin(roomID: int):
 def removeUserFromRoom(userID: int, roomID: int):
   removeUserFromRoomInDB(userID, roomID)
 
+def likeMessage(msgId: int, userId: int):
+  if checkIfUserLikedMessage(msgId, userId) != None:
+    
+    return False
+  addLikeToMessageInDB(msgId, userId)
+  return True
