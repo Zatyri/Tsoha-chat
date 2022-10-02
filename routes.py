@@ -158,6 +158,7 @@ def removeUser():
     roomAdmin = getRoomAdmin(roomID)
 
     if int(userToRemove) == roomAdmin :
+        session['error'] = "Huoneen pääkäyttäjää ei voida poistaa"
         return redirect("/?room=" + str(roomID)) 
     removeUserFromRoom(userToRemove, roomID)
 
