@@ -61,10 +61,9 @@ def createRoomToDB(userID:int, isPrivate:bool, roomName:str) -> int:
     sql = "INSERT INTO rooms (title, creator, isPrivate) VALUES (:title, :creator, :isPrivate) RETURNING id"
     result = db.session.execute(sql, {"title":roomName, "creator":userID, "isPrivate":isPrivate})
     roomID = result.first()[0]
-    sqlAddUserToRoom = "INSERT INTO usersInRoom (room, userID) VALUES (:room, :userID)"
-    db.session.execute(sqlAddUserToRoom, {"room": roomID, "userID": userID})
-
     db.session.commit() 
+    addUserToRoomInDB(userID, roomID)
+
     return roomID
   except Exception as e: print(e)
 
@@ -105,13 +104,13 @@ def getRoomTitleFromDB(roomID: int):
       return result.fetchall()[0][0]
     except Exception as e: print(e)
 
-def getIsRoomPrivateFromDB(roomID:int):
+def getIsRoomInfo(roomID:int):
   try:    
-    sql = "SELECT r.isPrivate FROM rooms as r WHERE r.id = (:roomID)"
+    sql = "SELECT r.id, r.title, r.creator, r.isPrivate FROM rooms as r WHERE r.id = (:roomID)"
 
     result = db.session.execute(sql, {"roomID": roomID})    
 
-    return result.fetchall()[0][0]
+    return result.fetchall()[0]
   except Exception as e: print(e)
 
 def getUsersNotInRoomFromDB(roomID:int):
@@ -124,4 +123,29 @@ def getUsersNotInRoomFromDB(roomID:int):
 
     return result.fetchall()
   except Exception as e: print(e)
-    
+
+def addUserToRoomInDB(userID: int, roomID: int):
+  try:    
+    sql = "INSERT INTO usersInRoom (room, userID) VALUES (:room, :userID)"
+    db.session.execute(sql, {"room": roomID, "userID": userID})
+
+    db.session.commit() 
+  except Exception as e: print(e)
+
+def getUsersInRoomFromDB(roomID:int):
+  try:    
+    sql = """SELECT u.id, u.username FROM users as u
+          WHERE EXISTS(SELECT * FROM usersinroom 
+          WHERE usersinroom.room = (:roomID) AND usersinroom.userID = u.id)"""
+
+    result = db.session.execute(sql, {"roomID": roomID})    
+
+    return result.fetchall()
+  except Exception as e: print(e)
+
+def removeUserFromRoomInDB(userID: int, roomID: int):
+  try:    
+    sql = "DELETE FROM usersInRoom WHERE userID = (:userID) AND room = (:roomID)"
+    db.session.execute(sql, {"roomID": roomID, "userID": userID})    
+    db.session.commit() 
+  except Exception as e: print(e)

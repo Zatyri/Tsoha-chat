@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from models import Message, Room, SimpleUser
-from db import addMessageToDB,getUsersNotInRoomFromDB, getIsRoomPrivateFromDB, createRoomToDB, getMessagesInRoomFromDB, getRoomIsPrivate, getRoomTitleFromDB, getUsersRoomsfromDB, getUserInRoom
+from db import addMessageToDB, addUserToRoomInDB, getIsRoomInfo, getUsersInRoomFromDB,getUsersNotInRoomFromDB, createRoomToDB, getMessagesInRoomFromDB, getRoomIsPrivate, getRoomTitleFromDB, getUsersRoomsfromDB, getUserInRoom, removeUserFromRoomInDB
 
 
 def getMessagesInRoom(roomID: int=1, userID: int = None):
@@ -25,7 +25,7 @@ def checkUserAccessToRoom(roomID: int, userID: int):
   isPrivate = getRoomIsPrivate(roomID)  
   if isPrivate:
     result = getUserInRoom(roomID, userID) 
-    if len(result) > 0 and result[0][0] == userID:        
+    if len(result) > 0 and result[0][0] == userID:  
       return False
     return True
   
@@ -55,16 +55,33 @@ def getRoomTitle(roomID: int, userID: int):
   return getRoomTitleFromDB(roomID)
 
 def getIsRoomPrivate(roomID: int):
-  isPrivate = getIsRoomPrivateFromDB(roomID)
-  if type(isPrivate) is bool:
-    return isPrivate
+  roomDetails = getIsRoomInfo(roomID)
+  if type(roomDetails[3]) is bool:
+    return roomDetails[3]
   return True
 
-def getUsersNotInRoom(roomID: int):
-  users = getUsersNotInRoomFromDB(roomID)
+def getUsersInRoom(roomID: int, getNonMembers: bool = False):  
+  if getNonMembers:
+    users = getUsersNotInRoomFromDB(roomID)
+  else:
+    users = getUsersInRoomFromDB(roomID)
   userList = []
   for user in users:
     userList.append(
       SimpleUser(user[1], user[0])
     )
   return userList
+
+def addUserToPrivateRoom(userID: int, roomID: int):
+  addUserToRoomInDB(userID, roomID)
+
+def getRoomAdmin(roomID: int):
+  roomInfo = getIsRoomInfo(roomID)
+  if not roomInfo == None:
+    return roomInfo[2]
+  else:
+    return -1
+
+def removeUserFromRoom(userID: int, roomID: int):
+  removeUserFromRoomInDB(userID, roomID)
+

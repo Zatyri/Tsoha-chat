@@ -33,20 +33,30 @@
   <div class="chat">
     <h2>Huone: {{title}}</h2>
 	
-    {% if isPrivate %}
-    <form action="/inviteUser" method="POST">
 
-      <label for="inviteUsers">Kutsu käyttäjiä huoneeseen</label>
-      <select name="inviteUsers">
-        
-        {% for user in users %}
-        <option value="{{user.id}}" >{{user.username}}</option>
-        {% endfor %}
-        
-      </select>
-      <input type="submit" value="Viestittele" />
 
-    </form>
+    {% if isPrivate and userHasAccess %}
+    <div class="room-users">
+      {% for user in members %}
+        <div>{{user.username}} <a href="removeUserFromRoom/?user={{user.id}}">Poista käyttäjä huoneesta</a>  </div>
+      {% endfor %}
+    </div>
+
+    <div class="invite-user">
+      <form action="/inviteUser" method="POST">
+        
+        <label for="inviteUsers">Kutsu käyttäjiä huoneeseen</label>
+        <select name="inviteUsers">
+          
+          {% for user in nonMembers %}
+          <option value="{{user.id}}" >{{user.username}}</option>
+          {% endfor %}
+          
+        </select>
+        <input type="submit" value="Lisää käyttäjä" />
+        
+      </form>
+    </div>
     {% endif %}
     <form action="/postMessage" method="POST">
       <input type="text" name="messageContent" />
