@@ -11,6 +11,7 @@ def index():
     rooms = []    
     messages = []
     userID = -1
+    error = None
     if 'username' in session:
         id_token = session['username']
         messages = getMessagesInRoom()
@@ -28,13 +29,17 @@ def index():
         userID = session['userID']
         rooms = getUsersRooms(userID)
 
+    if 'error' in session:
+        error = session['error']
+        del session['error']
+
     messages = getMessagesInRoom(session["activeRoom"], userID)
     title = getRoomTitle(session["activeRoom"], userID)
     if title == None:
         title = "johon sinulla ei ole pääsyä"
 
 
-    return render_template("index.html", messages=messages, rooms = rooms, title=title)
+    return render_template("index.html", messages=messages, rooms=rooms, title=title, error=error)
 
 @app.route("/postMessage", methods=["POST"])
 def postMessage():
@@ -56,7 +61,8 @@ def login():
     password = request.form['password']
     
     userID = userLogin(username, password)
-    if not userID > 0:        
+    if not userID > 0:    
+        session['error'] = "Väärä käyttäjätunnus tai salasana"    
         return redirect("/")
     
     session["username"] = username  
@@ -75,18 +81,25 @@ def logout():
 
 @app.route("/register")
 def register():
-    return render_template("register.html") 
+    error = None
+    if 'error' in session:
+        error = session['error']
+        del session['error']
+
+    return render_template("register.html", error=error) 
 
 @app.route("/register/me", methods=["POST"])
 def registerMe():
     username = request.form['username']
     if checkIfUserExists(username):
+        session['error'] = "Käyttäjänimi on varattu, valitse toinen käyttäjänimi"
         return redirect("/register")
     
     password = request.form['password']
     passwordVerification = request.form['passwordVerification']
     
     if password != passwordVerification:
+        session['error'] = "Salasanat eivät täsmää"
         return redirect("/register")
 
     hash_value = generate_password_hash(password)
