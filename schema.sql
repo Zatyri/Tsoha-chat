@@ -44,5 +44,5 @@ CREATE TABLE IF NOT EXISTS repliedMessages
 CREATE TABLE IF NOT EXISTS likedMessages
 (
   messageID integer references messages(id),
-  userID integer references users(id)
+  userID integer references users(id) ON DELETE SET NULL
 );
