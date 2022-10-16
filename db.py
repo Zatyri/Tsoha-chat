@@ -30,7 +30,8 @@ def getUsersPasswordAndID(username: str):
     sql = "SELECT id, password FROM users WHERE users.username = (:username)"
     result = db.session.execute(sql, {"username":username})
     return result.first()    
-  except Exception as e: print(e)
+  except:
+    return False
     
 def getMessagesInRoomFromDB(roomID:int):  
   try:    
@@ -44,7 +45,8 @@ def getMessagesInRoomFromDB(roomID:int):
 
     result = db.session.execute(sql, {"roomID":roomID})         
     return result.fetchall()  
-  except Exception as e: print(e)
+  except:
+    return False
 
 def addMessageToDB(roomID:int, author:int, content:str, postedTime:str):
   try:    
@@ -57,7 +59,8 @@ def addMessageToDB(roomID:int, author:int, content:str, postedTime:str):
 
     db.session.commit() 
 
-  except Exception as e: print(e)
+  except:
+    return False
 
 def createRoomToDB(userID:int, isPrivate:bool, roomName:str) -> int:
   try:    
@@ -68,7 +71,8 @@ def createRoomToDB(userID:int, isPrivate:bool, roomName:str) -> int:
     addUserToRoomInDB(userID, roomID)
 
     return roomID
-  except Exception as e: print(e)
+  except:
+    return False
 
 def getUsersRoomsfromDB(userID:int) -> int:
   try:    
@@ -78,7 +82,8 @@ def getUsersRoomsfromDB(userID:int) -> int:
     result = db.session.execute(sql, {"userID":userID})    
 
     return result.fetchall()  
-  except Exception as e: print(e)
+  except:
+    return False
 
 def getUserInRoom(roomID: int, userID:int):
   try:    
@@ -87,7 +92,8 @@ def getUserInRoom(roomID: int, userID:int):
     result = db.session.execute(sql, {"roomID": roomID, "userID":userID})    
 
     return result.fetchall()  
-  except Exception as e: print(e)
+  except:
+    return False
 
 def getRoomIsPrivate(roomID: int):
   try:    
@@ -96,16 +102,18 @@ def getRoomIsPrivate(roomID: int):
     result = db.session.execute(sql, {"roomID": roomID})    
 
     return result.fetchall()[0][0]
-  except Exception as e: print(e)
+  except:
+    return False
 
 def getRoomTitleFromDB(roomID: int):
-    try:    
-      sql = "SELECT u.title FROM rooms as u WHERE u.id = (:roomID)"
+  try:    
+    sql = "SELECT u.title FROM rooms as u WHERE u.id = (:roomID)"
 
-      result = db.session.execute(sql, {"roomID": roomID})    
+    result = db.session.execute(sql, {"roomID": roomID})    
 
-      return result.fetchall()[0][0]
-    except Exception as e: print(e)
+    return result.fetchall()[0][0]
+  except:
+    return False
 
 def getIsRoomInfo(roomID:int):
   try:    
@@ -125,7 +133,8 @@ def getUsersNotInRoomFromDB(roomID:int):
     result = db.session.execute(sql, {"roomID": roomID})    
 
     return result.fetchall()
-  except Exception as e: print(e)
+  except:
+    return False
 
 def addUserToRoomInDB(userID: int, roomID: int):
   try:    
@@ -133,7 +142,8 @@ def addUserToRoomInDB(userID: int, roomID: int):
     db.session.execute(sql, {"room": roomID, "userID": userID})
 
     db.session.commit() 
-  except Exception as e: print(e)
+  except:
+    return False
 
 def getUsersInRoomFromDB(roomID:int):
   try:    
@@ -144,56 +154,64 @@ def getUsersInRoomFromDB(roomID:int):
     result = db.session.execute(sql, {"roomID": roomID})    
 
     return result.fetchall()
-  except Exception as e: print(e)
+  except:
+    return False
 
 def removeUserFromRoomInDB(userID: int, roomID: int):
   try:    
     sql = "DELETE FROM usersInRoom WHERE userID = (:userID) AND room = (:roomID)"
     db.session.execute(sql, {"roomID": roomID, "userID": userID})    
     db.session.commit() 
-  except Exception as e: print(e)
+  except:
+    return False
 
 def deleteUserFromDB(userID: int):
   try:    
     sql = "DELETE FROM users WHERE id = (:userID)"
     db.session.execute(sql, {"userID": userID})    
     db.session.commit() 
-  except Exception as e: print(e)
+  except:
+    return False
 
 def getUsersPassword(userID: int):
   try:    
     sql = "SELECT password FROM users WHERE users.id = (:userID)"
     result = db.session.execute(sql, {"userID":userID})
     return result.first()[0]
-  except Exception as e: print(e)
+  except:
+    return False
 
 def updateUsersPassword(userID: int, newPassword: str):
   try:    
     sql = "UPDATE users SET password = (:newPassword) WHERE id = (:userID)"
     db.session.execute(sql, {"userID":userID, "newPassword": newPassword})
     db.session.commit() 
-  except Exception as e: print(e)
+  except:
+    return False
 
 def addLikeToMessageInDB(msgID: int, userID:int):
   try:    
     sql = "INSERT INTO likedMessages (messageID, userID) VALUES (:msgID, :userID)"
     db.session.execute(sql, {"msgID": msgID, "userID": userID})
     db.session.commit() 
-  except Exception as e: print(e)
+  except:
+    return False
 
 def checkIfUserLikedMessage(msgID: int, userID: int):
   try:    
     sql = "SELECT * FROM likedMessages WHERE userID = (:userID) AND messageID = (:msgID)"
     result = db.session.execute(sql, {"msgID": msgID, "userID": userID})
     return result.first()
-  except Exception as e: print(e)
+  except:
+    return False
 
 def countMessageLikes(msgID: int):
   try:    
     sql = "SELECT COUNT(*) FROM likedMessages WHERE messageID = (:msgID)"
     result = db.session.execute(sql, {"msgID": msgID})    
     return result.first()[0]
-  except Exception as e: print(e)
+  except:
+    return False
 
 def addReplyToDB(roomID:int, author:int, content:str, postedTime:str, parentMessage:int):
   try:    
@@ -205,8 +223,8 @@ def addReplyToDB(roomID:int, author:int, content:str, postedTime:str, parentMess
     db.session.execute(sqlAddRelation, {"parentMessage":parentMessage, "messagesID":messageID}) 
 
     db.session.commit() 
-
-  except Exception as e: print(e)
+  except:
+    return False
 
 def getRepliesFromDB(msgID: int):
   try:    
@@ -219,4 +237,5 @@ def getRepliesFromDB(msgID: int):
 
     result = db.session.execute(sql, {"msgID":msgID})         
     return result.fetchall()  
-  except Exception as e: print(e)
+  except:
+    return False

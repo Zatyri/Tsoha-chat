@@ -87,7 +87,6 @@ def getRoomTitle(roomID: int, userID: int):
 
 def getIsRoomPrivate(roomID: int):
   roomDetails = getIsRoomInfo(roomID)
-  print(roomDetails)
   if type(roomDetails[3]) is bool:
     return roomDetails[3]
   return True
