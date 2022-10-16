@@ -10,6 +10,7 @@ head %} {{ super() }} {% endblock %} {% block content %} {% if session.username
     <div class="error">{{error}}</div>
   {% endif %} 
 <form action="/register/me" method="POST">
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
   <p>
     Tunnus:<br />
     <input type="text" name="username" value="{{input}}" required minlength="4" maxlength="15" required minlength="4" maxlength="15" />

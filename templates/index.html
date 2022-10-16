@@ -23,6 +23,7 @@
       <div class="create-room">
         <h2>Luo uusi huone</h2>
         <form action="/createRoom" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
           <input
             type="text"
             name="roomName"
@@ -31,6 +32,7 @@
             minlength="1"
             maxlength="30"
           />
+          
           <div>
             <label for="isPrivate">Yksityinen:</label>
             <input
@@ -49,12 +51,14 @@
       {% if isPrivate and userHasAccess %}
       <div class="invite-user">
         <form action="/inviteUser" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
           <label for="inviteUsers">Kutsu käyttäjiä huoneeseen</label>
           <select name="inviteUsers">
             {% for user in nonMembers %}
             <option value="{{user.id}}">{{user.username}}</option>
             {% endfor %}
           </select>
+
           <input type="submit" value="Lisää käyttäjä" />
         </form>
       </div>
@@ -73,6 +77,8 @@
       {% endif %}
 
       <form id="post-message" action="/postMessage" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+
         <input
           id="messagebox"
           placeholder="Kirjoita viestisi tähän"
@@ -108,6 +114,7 @@
 
             <div class="message-footer">
               <form action="/postReply" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                 <input type="hidden" name="parent" value="{{message.id}}" />
                 <input
                   type="text"
@@ -136,6 +143,7 @@
 <div class="error">{{error}}</div>
 {% endif %}
 <form action="/login" method="POST">
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
   <p>
     Tunnus:<br />
     <input type="text" value="{{input}}" name="username" />

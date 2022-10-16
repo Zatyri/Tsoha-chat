@@ -1,5 +1,6 @@
+import secrets
 from app import app
-from flask import render_template, session, request, redirect
+from flask import abort, render_template, session, request, redirect
 from werkzeug.security import generate_password_hash
 from models import User
 from services.auth import addUser, changePassword, checkIfUserExists, checkUsersPassword, deleteUser, userLogin
@@ -15,6 +16,10 @@ def index():
     userHasAccess = False
     error = None
     userInput = ""
+
+    if 'csrf_token' not in session:
+        session["csrf_token"] = secrets.token_hex(16)
+
     if 'username' in session:
         id_token = session['username']
         messages = getMessagesInRoom()
@@ -55,6 +60,8 @@ def index():
 
 @app.route("/postMessage", methods=["POST"])
 def postMessage():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     messageContent = request.form['messageContent']
     userID = session['userID']
     roomID = session["activeRoom"]
@@ -68,6 +75,8 @@ def postMessage():
 
 @app.route('/login',methods=["POST"])
 def login():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     if 'username' in session:
         del session["username"]
     if 'userID' in session:
@@ -93,6 +102,8 @@ def logout():
         del session['userID']
     if 'activeRoom' in session:
         del session["activeRoom"]
+    if 'csrf_token' in session: 
+        del session["csrf_token"]
     return redirect("/")
 
 @app.route("/register")
@@ -110,6 +121,8 @@ def register():
 
 @app.route("/register/me", methods=["POST"])
 def registerMe():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     username = request.form['username']
     if checkIfUserExists(username):
         session["userInput"] = username
@@ -132,6 +145,8 @@ def registerMe():
 
 @app.route("/createRoom", methods=["POST"])
 def createRoom():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     userID = session['userID']
         
     isPrivate = request.form.get('isPrivate')
@@ -146,7 +161,8 @@ def createRoom():
 
 @app.route("/inviteUser", methods=["POST"])
 def inviteUser():
-
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     userID = session['userID']        
     roomID = session["activeRoom"]
 
@@ -191,6 +207,7 @@ def account():
 @app.route("/deleteMe")
 def deleteMe():
     if not "userID" in session:
+        del session["csrf_token"]
         return redirect("/")    
     
     deleteUser(session['userID'])
@@ -199,7 +216,8 @@ def deleteMe():
 
 @app.route("/changePassword", methods=["POST"])
 def updatePassword():
-
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     userID = session['userID']        
     currentPassword = request.form['currentPassword']
 
@@ -235,6 +253,8 @@ def likeMsq():
 
 @app.route("/postReply", methods=["POST"])
 def postReply():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     messageContent = request.form['messageContent']
     parentMessage = int(request.form['parent'])
     userID = session['userID']
