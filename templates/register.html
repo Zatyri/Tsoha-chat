@@ -12,7 +12,7 @@ head %} {{ super() }} {% endblock %} {% block content %} {% if session.username
 <form action="/register/me" method="POST">
   <p>
     Tunnus:<br />
-    <input type="text" name="username" required minlength="4" maxlength="15" required minlength="4" maxlength="15" />
+    <input type="text" name="username" value="{{input}}" required minlength="4" maxlength="15" required minlength="4" maxlength="15" />
   </p>
   <p>
     Salasana:<br />

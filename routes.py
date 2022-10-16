@@ -14,9 +14,14 @@ def index():
     roomID = "1"
     userHasAccess = False
     error = None
+    userInput = ""
     if 'username' in session:
         id_token = session['username']
         messages = getMessagesInRoom()
+
+    if 'userInput' in session:
+        userInput = session["userInput"]
+        del session["userInput"]
 
     if request.args.get('room'):           
         roomID = request.args.get('room')
@@ -46,7 +51,7 @@ def index():
     else:
         userHasAccess = True
 
-    return render_template("index.html", messages=messages, rooms=rooms, title=title, isPrivate=isPrivate, nonMembers=nonMembers, members=members , userHasAccess=userHasAccess, error=error)
+    return render_template("index.html", messages=messages, rooms=rooms, title=title, isPrivate=isPrivate, nonMembers=nonMembers, members=members , userHasAccess=userHasAccess, error=error, input=userInput)
 
 @app.route("/postMessage", methods=["POST"])
 def postMessage():
@@ -71,7 +76,8 @@ def login():
     password = request.form['password']
     
     userID = userLogin(username, password)
-    if not userID > 0:    
+    if not userID > 0:
+        session["userInput"] = username
         session['error'] = "Väärä käyttäjätunnus tai salasana"    
         return redirect("/")
     
@@ -92,16 +98,21 @@ def logout():
 @app.route("/register")
 def register():
     error = None
-    if 'error' in session:
+    userInput = ""
+    if 'userInput' in session:
+        userInput = session["userInput"]
+        del session["userInput"]
+    if 'error' in session:        
         error = session['error']
         del session['error']
 
-    return render_template("register.html", error=error) 
+    return render_template("register.html", error=error, input=userInput) 
 
 @app.route("/register/me", methods=["POST"])
 def registerMe():
     username = request.form['username']
     if checkIfUserExists(username):
+        session["userInput"] = username
         session['error'] = "Käyttäjänimi on varattu, valitse toinen käyttäjänimi"
         return redirect("/register")
     
